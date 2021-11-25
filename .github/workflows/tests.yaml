@@ -32,7 +32,7 @@ jobs:
         run: |
           source .venv/bin/activate
           pylint oneup
-          flake8
+          flake8 --extend-exclude ".venv"
       - name: Run tests with pytest
         run: |
           source .venv/bin/activate
