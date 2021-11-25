@@ -4,6 +4,27 @@ version = "0.1.0"
 description = "A CLI tool to check for dependency updates for Python, in Python"
 authors = ["Andrés Ignacio Torres <dev@aitorres.com>"]
 license = "AGPL-3.0-only"
+readme = "README.md"
+repository = "https://github.com/aitorres/oneup"
+keywords = [
+    "python",
+    "dependency updates",
+    "pyproject",
+    "requirements",
+    "cli"
+]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development",
+    "Topic :: Utilities",
+    "Typing :: Typed"
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/aitorres/oneup/issues"
 
 [tool.poetry.dependencies]
 python = "^3.9"
