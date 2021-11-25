@@ -30,7 +30,7 @@ classifiers = [
 python = "^3.9"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+pytest = "^6.2.5"
 pytest-cov = "^3.0.0"
 
 [build-system]
