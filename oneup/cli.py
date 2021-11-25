@@ -9,9 +9,10 @@ from pathlib import Path
 from typing import Final, Optional
 
 import requirements  # type: ignore
+import toml
 
 from oneup.output import ERROR_STR, ONEUP_STR, to_bold
-from oneup.version_checks import get_project_latest_version
+from oneup.version_checks import print_project_latest_version
 
 REQUIREMENTS_TXT: Final[str] = "requirements.txt"
 REQUIREMENTS_DEV_TXT: Final[str] = "requirements_dex.txt"
@@ -97,7 +98,6 @@ def scan_file(requirements_file_path: Path) -> None:
     """
 
     file_name = requirements_file_path.name
-
     if file_name in (REQUIREMENTS_TXT, REQUIREMENTS_DEV_TXT):
         with open(
             requirements_file_path,
@@ -105,24 +105,31 @@ def scan_file(requirements_file_path: Path) -> None:
             encoding="utf8"
         ) as requirements_file:
             parsed_file = requirements.parse(requirements_file)
-
             for req in parsed_file:
                 project_name: str = req.name
-                latest_version = get_project_latest_version(project_name)
-                if latest_version is not None:
-                    print(
-                        f"{to_bold(project_name)}'s latest version "
-                        f"is: {latest_version}"
-                    )
-                else:
-                    print(
-                        f"Could not get {to_bold(project_name)}'s "
-                        "latest version"
-                    )
+                print_project_latest_version(project_name)
+
     elif file_name == PYPROJECT_TOML:
-        raise NotImplementedError(
-            f"Support for {PYPROJECT_TOML} is not yet implemented :-("
-        )
+        parsed_toml = toml.load(requirements_file_path)
+
+        # according to PEP 621, dependencies should be located in either
+        # `requires` (flit), `tool.poetry.dependencies` (poetry),
+        # `install_requires` (setuptools) or `dependencies`
+        if "dependencies" in parsed_toml:
+            dependencies: list[str] = list(parsed_toml["dependencies"].keys())
+        elif "install_requires" in parsed_toml:
+            dependencies = list(parsed_toml["install_requires"].keys())
+        elif "requires" in parsed_toml:
+            dependencies = list(parsed_toml["requires"].keys())
+        elif "tool" in parsed_toml:
+            tool_specs = parsed_toml["tool"]
+            if "poetry" in tool_specs:
+                poetry_specs = tool_specs["poetry"]
+                if "dependencies" in poetry_specs:
+                    dependencies = list(poetry_specs["dependencies"].keys())
+
+        for dependency in dependencies:
+            print_project_latest_version(dependency)
 
 
 def get_parser() -> argparse.ArgumentParser:
