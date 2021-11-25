@@ -8,7 +8,10 @@ import sys
 from pathlib import Path
 from typing import Final, Optional
 
+import requirements
+
 from oneup.output import ERROR_STR, ONEUP_STR, to_bold
+from oneup.version_checks import get_project_latest_version
 
 REQUIREMENTS_TXT: Final[str] = "requirements.txt"
 REQUIREMENTS_DEV_TXT: Final[str] = "requirements_dex.txt"
@@ -87,6 +90,35 @@ def discover_requirement_file(interactive_mode: bool) -> Optional[Path]:
     return potential_files[int(maybe_idx)]
 
 
+def scan_file(requirements_file_path: Path) -> None:
+    """
+    Scans a supported requirements file to check for dependencies
+    and query for their latest version
+    """
+
+    file_name = requirements_file_path.name
+
+    if file_name in (REQUIREMENTS_TXT, REQUIREMENTS_DEV_TXT):
+        parsed_file = requirements.parse(requirements_file_path)
+
+        for req in parsed_file:
+            project_name: str = req.name
+            latest_version = get_project_latest_version(project_name)
+            if latest_version is not None:
+                print(
+                    f"{to_bold(project_name)}'s latest version "
+                    f"is: {latest_version}"
+                )
+            else:
+                print(
+                    f"Could not get {to_bold(project_name)}'s latest version"
+                )
+    elif file_name == PYPROJECT_TOML:
+        raise NotImplementedError(
+            f"Support for {PYPROJECT_TOML} is not yet implemented :-("
+        )
+
+
 def get_parser() -> argparse.ArgumentParser:
     """
     Generate and return a parser for the CLI tool
@@ -143,6 +175,7 @@ def main() -> None:
 
     file_path = maybe_file_path
     print(f"{ONEUP_STR} will scan {to_bold(str(file_path))} for updates")
+    scan_file(file_path)
 
 
 if __name__ == "__main__":
