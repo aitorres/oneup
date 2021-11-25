@@ -7,7 +7,7 @@ from typing import Final, Optional
 
 import requests
 
-PYPI_API_PROJECT_URL: Final[str] = "https://pypi.org/{project_name}/json"
+PYPI_API_PROJECT_URL: Final[str] = "https://pypi.org/pypi/{project_name}/json"
 
 
 def get_project_latest_version(project_name: str) -> Optional[str]:
