@@ -10,9 +10,13 @@ from typing import Final, Optional
 
 from oneup.output import ERROR_STR, ONEUP_STR, to_bold
 
+REQUIREMENTS_TXT: Final[str] = "requirements.txt"
+REQUIREMENTS_DEV_TXT: Final[str] = "requirements_dex.txt"
+PYPROJECT_TOML: Final[str] = "pyproject.toml"
 SUPPORTED_REQUIREMENT_FILES: Final[list[str]] = [
-    "requirements.txt",
-    "pyproject.toml",
+    REQUIREMENTS_TXT,
+    REQUIREMENTS_DEV_TXT,
+    PYPROJECT_TOML,
 ]
 
 
