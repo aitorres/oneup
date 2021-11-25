@@ -28,6 +28,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
+termcolor = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
@@ -35,6 +36,7 @@ pytest-cov = "^3.0.0"
 flake8 = "^4.0.1"
 mypy = "^0.910"
 pylint = "^2.11.1"
+types-termcolor = "^1.1.2"
 
 [tool.poetry.scripts]
 oneup = 'oneup.cli:main'
