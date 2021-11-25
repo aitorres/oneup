@@ -18,7 +18,13 @@ jobs:
           architecture: x64
       - name: Install Poetry
         uses: snok/install-poetry@v1.3.0
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
       - name: Install dependencies with Poetry
-        run: poetry install
+        run: poetry install --no-interaction --no-root
       - name: Run tests with pytest
-        run: poetry shell && pytest --cov=. --cov-fail-under=80 -svvv tests.py
+        run: |
+          source .venv/bin/activate
+          pytest --cov=. --cov-fail-under=80 -svvv
