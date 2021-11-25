@@ -20,5 +20,7 @@ jobs:
         uses: snok/install-poetry@v1.3.0
       - name: Install dependencies with Poetry
         run: poetry install
+        with:
+          virtualenvs-create: false
       - name: Run tests with pytest
         run: pytest --cov=. --cov-fail-under=80 -svvv tests.py
