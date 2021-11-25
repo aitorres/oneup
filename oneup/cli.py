@@ -99,20 +99,22 @@ def scan_file(requirements_file_path: Path) -> None:
     file_name = requirements_file_path.name
 
     if file_name in (REQUIREMENTS_TXT, REQUIREMENTS_DEV_TXT):
-        parsed_file = requirements.parse(requirements_file_path)
+        with open(requirements_file_path, "r") as requirements_file:
+            parsed_file = requirements.parse(requirements_file)
 
-        for req in parsed_file:
-            project_name: str = req.name
-            latest_version = get_project_latest_version(project_name)
-            if latest_version is not None:
-                print(
-                    f"{to_bold(project_name)}'s latest version "
-                    f"is: {latest_version}"
-                )
-            else:
-                print(
-                    f"Could not get {to_bold(project_name)}'s latest version"
-                )
+            for req in parsed_file:
+                project_name: str = req.name
+                latest_version = get_project_latest_version(project_name)
+                if latest_version is not None:
+                    print(
+                        f"{to_bold(project_name)}'s latest version "
+                        f"is: {latest_version}"
+                    )
+                else:
+                    print(
+                        f"Could not get {to_bold(project_name)}'s "
+                        "latest version"
+                    )
     elif file_name == PYPROJECT_TOML:
         raise NotImplementedError(
             f"Support for {PYPROJECT_TOML} is not yet implemented :-("
