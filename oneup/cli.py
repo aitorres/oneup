@@ -99,7 +99,11 @@ def scan_file(requirements_file_path: Path) -> None:
     file_name = requirements_file_path.name
 
     if file_name in (REQUIREMENTS_TXT, REQUIREMENTS_DEV_TXT):
-        with open(requirements_file_path, "r") as requirements_file:
+        with open(
+            requirements_file_path,
+            "r",
+            encoding="utf8"
+        ) as requirements_file:
             parsed_file = requirements.parse(requirements_file)
 
             for req in parsed_file:
