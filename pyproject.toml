@@ -14,6 +14,7 @@ keywords = [
     "cli"
 ]
 classifiers = [
+    "Development Status :: 3 - Alpha",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
@@ -29,6 +30,8 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.9"
 termcolor = "^1.1.0"
+requests = "^2.26.0"
+requirements-parser = "^0.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
@@ -37,6 +40,7 @@ flake8 = "^4.0.1"
 mypy = "^0.910"
 pylint = "^2.11.1"
 types-termcolor = "^1.1.2"
+types-requests = "^2.26.0"
 
 [tool.poetry.scripts]
 oneup = 'oneup.cli:main'
