@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from typing import Final, Optional
 
-import requirements
+import requirements  # type: ignore
 
 from oneup.output import ERROR_STR, ONEUP_STR, to_bold
 from oneup.version_checks import get_project_latest_version
