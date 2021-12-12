@@ -133,7 +133,6 @@ def scan_file(requirements_file_path: Path) -> None:
                             list(poetry_specs["dependencies"].keys())
                         )
 
-
         for dependency in dependencies:
             print_project_latest_version(dependency)
 
