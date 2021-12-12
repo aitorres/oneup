@@ -63,3 +63,61 @@ def test_get_project_latest_version(monkeypatch: pytest.MonkeyPatch) -> None:
         )
     )
     assert version_checks.get_project_latest_version("project_name") == "1.2.0"
+
+
+def test_print_project_latest_version_for_python(
+    capfd: pytest.CaptureFixture
+) -> None:
+    """
+    Unit test to ensure that no project version is printed
+    if the specified package is python
+    """
+
+    version_checks.print_project_latest_version("python")
+    out, _ = capfd.readouterr()
+    assert out == ""
+
+
+def test_print_project_latest_version_for_right_version(
+    monkeypatch: pytest.MonkeyPatch,
+    capfd: pytest.CaptureFixture
+) -> None:
+    """
+    Unit test to ensure that project versions are properly printed
+    when they're successfully downloaded
+    """
+
+    monkeypatch.setattr(
+        "requests.get",
+        lambda _: ResponseMock(
+            {
+                "info": {
+                    "version": "1.2.0"
+                }
+            }
+        )
+    )
+    version_checks.print_project_latest_version("package-name")
+    out, _ = capfd.readouterr()
+    assert out == "\x1b[1mpackage-name\x1b[0m's latest version is: 1.2.0\n"
+
+
+def test_print_project_latest_version_for_invalid_version(
+    monkeypatch: pytest.MonkeyPatch,
+    capfd: pytest.CaptureFixture
+) -> None:
+    """
+    Unit test to ensure that a warning message is printed if a
+    package's version could not be found
+    """
+
+    monkeypatch.setattr(
+        "requests.get",
+        lambda _: ResponseMock(
+            {},
+            status_code=404
+        )
+    )
+    version_checks.print_project_latest_version("package-name")
+    out, _ = capfd.readouterr()
+    assert out == "Could not get \x1b[1mpackage-name\x1b[0m's latest version\n"
