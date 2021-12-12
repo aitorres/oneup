@@ -138,3 +138,82 @@ def test_discover_requirement_file(monkeypatch: pytest.MonkeyPatch) -> None:
         cli.discover_requirement_file(True)
         == Path("pyproject.toml")
     )
+
+
+def test_get_dependencies_from_pyproject_file() -> None:
+    """
+    Tests the function that returns dependencies given a parsed
+    pyproject file map
+    """
+
+    assert cli.get_dependencies_from_pyproject_file(
+        {
+            "dependencies": {
+                "package1": "1.2.3",
+                "package2": "4.5.6",
+            }
+        }
+    ) == ["package1", "package2"]
+
+    assert cli.get_dependencies_from_pyproject_file(
+        {
+            "install_requires": {
+                "package1": "1.2.3",
+                "package2": "4.5.6",
+            }
+        }
+    ) == ["package1", "package2"]
+
+    assert cli.get_dependencies_from_pyproject_file(
+        {
+            "requires": {
+                "package1": "1.2.3",
+                "package2": "4.5.6",
+            }
+        }
+    ) == ["package1", "package2"]
+
+    assert cli.get_dependencies_from_pyproject_file(
+        {
+            "tool": {
+                "poetry": {
+                    "dependencies": {
+                        "package1": "1.2.3",
+                        "package2": "4.5.6",
+                    },
+                }
+            }
+        }
+    ) == ["package1", "package2"]
+
+    assert cli.get_dependencies_from_pyproject_file(
+        {
+            "tool": {
+                "poetry": {
+                    "dev-dependencies": {
+                        "package3": "1.2.3",
+                        "package4": "4.5.6",
+                    }
+                }
+            }
+        }
+    ) == ["package3", "package4"]
+
+    assert cli.get_dependencies_from_pyproject_file(
+        {
+            "tool": {
+                "poetry": {
+                    "dependencies": {
+                        "package1": "1.2.3",
+                        "package2": "4.5.6",
+                    },
+                    "dev-dependencies": {
+                        "package3": "1.2.3",
+                        "package4": "4.5.6",
+                    }
+                }
+            }
+        }
+    ) == ["package1", "package2", "package3", "package4"]
+
+    assert cli.get_dependencies_from_pyproject_file({}) == []

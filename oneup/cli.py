@@ -6,7 +6,7 @@ import argparse
 import os
 import sys
 from pathlib import Path
-from typing import Final, Optional
+from typing import Any, Final, MutableMapping, Optional
 
 import requirements  # type: ignore
 import toml
@@ -91,6 +91,44 @@ def discover_requirement_file(interactive_mode: bool) -> Optional[Path]:
     return potential_files[int(maybe_idx)]
 
 
+def get_dependencies_from_pyproject_file(
+    parsed_toml: MutableMapping[str, Any]
+) -> list[str]:
+    """
+    Given a parsed pyproject file (in toml format), returns a list of all the
+    dependencies included in said file according to PEP-621
+    """
+
+    # according to PEP 621, dependencies should be located in either
+    # `requires` (flit), `tool.poetry.dependencies` (poetry),
+    # `install_requires` (setuptools) or `dependencies`
+    if "dependencies" in parsed_toml:
+        return list(parsed_toml["dependencies"].keys())
+
+    if "install_requires" in parsed_toml:
+        return list(parsed_toml["install_requires"].keys())
+
+    if "requires" in parsed_toml:
+        return list(parsed_toml["requires"].keys())
+
+    if "tool" in parsed_toml:
+        dependencies: list[str] = []
+
+        tool_specs: MutableMapping[str, Any] = parsed_toml["tool"]
+        if "poetry" in tool_specs:
+            poetry_specs: MutableMapping[str, Any] = tool_specs["poetry"]
+
+            for key in ("dependencies", "dev-dependencies"):
+                if key in poetry_specs:
+                    dependencies.extend(
+                        list(poetry_specs[key].keys())
+                    )
+
+        return dependencies
+
+    return []
+
+
 def scan_file(requirements_file_path: Path) -> None:
     """
     Scans a supported requirements file to check for dependencies
@@ -111,27 +149,7 @@ def scan_file(requirements_file_path: Path) -> None:
 
     elif file_name == PYPROJECT_TOML:
         parsed_toml = toml.load(requirements_file_path)
-
-        # according to PEP 621, dependencies should be located in either
-        # `requires` (flit), `tool.poetry.dependencies` (poetry),
-        # `install_requires` (setuptools) or `dependencies`
-        if "dependencies" in parsed_toml:
-            dependencies: list[str] = list(parsed_toml["dependencies"].keys())
-        elif "install_requires" in parsed_toml:
-            dependencies = list(parsed_toml["install_requires"].keys())
-        elif "requires" in parsed_toml:
-            dependencies = list(parsed_toml["requires"].keys())
-        elif "tool" in parsed_toml:
-            tool_specs = parsed_toml["tool"]
-            if "poetry" in tool_specs:
-                poetry_specs = tool_specs["poetry"]
-                dependencies = []
-
-                for key in ("dependencies", "dev-dependencies"):
-                    if key in poetry_specs:
-                        dependencies.extend(
-                            list(poetry_specs[key].keys())
-                        )
+        dependencies = get_dependencies_from_pyproject_file(parsed_toml)
 
         for dependency in dependencies:
             print_project_latest_version(dependency)
