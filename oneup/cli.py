@@ -130,7 +130,7 @@ def scan_file(requirements_file_path: Path) -> None:
                 for key in ("dependencies", "dev-dependencies"):
                     if key in poetry_specs:
                         dependencies.extend(
-                            list(poetry_specs["dependencies"].keys())
+                            list(poetry_specs[key].keys())
                         )
 
         for dependency in dependencies:
