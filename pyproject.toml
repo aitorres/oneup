@@ -39,10 +39,10 @@ pytest = "^6.2.5"
 pytest-cov = "^3.0.0"
 flake8 = "^4.0.1"
 mypy = "^0.910"
-pylint = "^2.11.1"
+pylint = "^2.12.2"
 types-termcolor = "^1.1.2"
 types-toml = "^0.10.1"
-types-requests = "^2.26.0"
+types-requests = "^2.26.1"
 
 [tool.poetry.scripts]
 oneup = 'oneup.cli:main'
