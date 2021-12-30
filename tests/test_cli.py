@@ -3,10 +3,13 @@ Unit test collection for the command-line interface functions.
 """
 
 from pathlib import Path
+from typing import Final
 
 import pytest
 
 from oneup import cli
+
+SAMPLE_FILES_PATH: Final[Path] = Path("tests/sample_files")
 
 
 def test_get_parser() -> None:
@@ -217,3 +220,36 @@ def test_get_dependencies_from_pyproject_file() -> None:
     ) == ["package1", "package2", "package3", "package4"]
 
     assert cli.get_dependencies_from_pyproject_file({}) == []
+
+
+def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
+    """
+    Unit test for the function that scans and prints dependency versions
+    from a requirements file
+    """
+
+    printed_dependencies: list[str] = []
+
+    def mock_print_project_latest_version(dependency: str) -> None:
+        printed_dependencies.append(dependency)
+
+    monkeypatch.setattr(
+        cli, "print_project_latest_version", mock_print_project_latest_version
+    )
+
+    # case: requirements.txt
+    test_file_path_1 = SAMPLE_FILES_PATH / "requirements.txt"
+    cli.scan_file(test_file_path_1)
+    assert printed_dependencies == ["mypy", "pytest", "toml"]
+
+    # case: pyproject.toml (poetry)
+    printed_dependencies = []
+    test_file_path_2 = SAMPLE_FILES_PATH / "pyproject.toml"
+    cli.scan_file(test_file_path_2)
+    assert printed_dependencies == [
+        "requests",
+        "toml",
+        "pytest",
+        "pytest-cov",
+        "flake8",
+    ]
