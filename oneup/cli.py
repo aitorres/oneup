@@ -143,16 +143,14 @@ def scan_file(requirements_file_path: Path) -> None:
             encoding="utf8"
         ) as requirements_file:
             parsed_file = requirements.parse(requirements_file)
-            for req in parsed_file:
-                project_name: str = req.name
-                print_project_latest_version(project_name)
+            dependencies: list[str] = [req.name for req in parsed_file]
 
     elif file_name == PYPROJECT_TOML:
         parsed_toml = toml.load(requirements_file_path)
         dependencies = get_dependencies_from_pyproject_file(parsed_toml)
 
-        for dependency in dependencies:
-            print_project_latest_version(dependency)
+    for dependency in dependencies:
+        print_project_latest_version(dependency)
 
 
 def get_parser() -> argparse.ArgumentParser:
