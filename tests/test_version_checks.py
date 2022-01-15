@@ -99,7 +99,9 @@ def test_print_project_latest_version_for_right_version(
     )
     version_checks.print_project_latest_version("package-name")
     out, _ = capfd.readouterr()
-    assert out == "\x1b[1mpackage-name\x1b[0m's latest version is: 1.2.0\n"
+    assert out == (
+        "\x1b[1mpackage-name\x1b[0m's latest version is: \x1b[1m1.2.0\x1b[0m\n"
+    )
 
 
 def test_print_project_latest_version_for_invalid_version(

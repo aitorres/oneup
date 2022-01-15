@@ -43,7 +43,7 @@ def print_project_latest_version(project_name: str) -> None:
     if latest_version is not None:
         print(
             f"{to_bold(project_name)}'s latest version "
-            f"is: {latest_version}"
+            f"is: {to_bold(latest_version)}"
         )
     else:
         print(
