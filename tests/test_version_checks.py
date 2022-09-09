@@ -36,7 +36,7 @@ def test_get_project_latest_version(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr(
         "requests.get",
-        lambda _: ResponseMock(
+        lambda *_args, **_kwargs: ResponseMock(
             {},
             status_code=500
         )
@@ -45,7 +45,7 @@ def test_get_project_latest_version(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr(
         "requests.get",
-        lambda _: ResponseMock(
+        lambda *_args, **_kwargs: ResponseMock(
             {},
             status_code=404
         )
@@ -54,7 +54,7 @@ def test_get_project_latest_version(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr(
         "requests.get",
-        lambda _: ResponseMock(
+        lambda *_args, **_kwargs: ResponseMock(
             {
                 "info": {
                     "version": "1.2.0"
@@ -89,7 +89,7 @@ def test_print_project_latest_version_for_right_version(
 
     monkeypatch.setattr(
         "requests.get",
-        lambda _: ResponseMock(
+        lambda *_args, **_kwargs: ResponseMock(
             {
                 "info": {
                     "version": "1.2.0"
@@ -115,7 +115,7 @@ def test_print_project_latest_version_for_invalid_version(
 
     monkeypatch.setattr(
         "requests.get",
-        lambda _: ResponseMock(
+        lambda *_args, **_kwargs: ResponseMock(
             {},
             status_code=404
         )
