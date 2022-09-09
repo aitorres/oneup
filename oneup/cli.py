@@ -143,7 +143,7 @@ def scan_file(requirements_file_path: Path) -> None:
             encoding="utf8"
         ) as requirements_file:
             parsed_file = requirements.parse(requirements_file)
-            dependencies: list[str] = [req.name for req in parsed_file]
+            dependencies: list[str] = [req["name"] for req in parsed_file]
 
     elif file_name == PYPROJECT_TOML:
         parsed_toml = toml.load(requirements_file_path)
