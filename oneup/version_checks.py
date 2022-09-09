@@ -10,6 +10,7 @@ import requests
 from oneup.output import to_bold
 
 PYPI_API_PROJECT_URL: Final[str] = "https://pypi.org/pypi/{project_name}/json"
+REQUEST_TIMEOUT: Final[int] = 5
 
 
 def get_project_latest_version(project_name: str) -> Optional[str]:
@@ -19,7 +20,8 @@ def get_project_latest_version(project_name: str) -> Optional[str]:
     """
 
     response = requests.get(
-        PYPI_API_PROJECT_URL.format(project_name=project_name)
+        PYPI_API_PROJECT_URL.format(project_name=project_name),
+        timeout=REQUEST_TIMEOUT
     )
 
     if response.status_code != 200:
