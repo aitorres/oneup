@@ -13,7 +13,9 @@ PYPI_API_PROJECT_URL: Final[str] = "https://pypi.org/pypi/{project_name}/json"
 REQUEST_TIMEOUT: Final[int] = 5
 
 
-def get_project_latest_version_and_url(project_name: str) -> Optional[tuple[str, str]]:
+def get_project_latest_version_and_url(
+    project_name: str
+) -> Optional[tuple[str, str]]:
     """
     Attempts to request and return the latest version, given a project name
     in PyPI. Will return `None` if the version can't be fetched.
@@ -28,7 +30,10 @@ def get_project_latest_version_and_url(project_name: str) -> Optional[tuple[str,
         return None
 
     response_json = response.json()
-    return (response_json["info"]["version"], response_json["info"]["home_page"])
+    return (
+        response_json["info"]["version"],
+        response_json["info"]["home_page"]
+    )
 
 
 def print_project_latest_version_and_url(project_name: str) -> None:

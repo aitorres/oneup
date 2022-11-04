@@ -41,7 +41,8 @@ def test_get_project_latest_version(monkeypatch: pytest.MonkeyPatch) -> None:
             status_code=500
         )
     )
-    assert version_checks.get_project_latest_version_and_url("project_name") is None
+    check_1 = version_checks.get_project_latest_version_and_url("project_name")
+    assert check_1 is None
 
     monkeypatch.setattr(
         "requests.get",
@@ -50,7 +51,8 @@ def test_get_project_latest_version(monkeypatch: pytest.MonkeyPatch) -> None:
             status_code=404
         )
     )
-    assert version_checks.get_project_latest_version_and_url("project_name") is None
+    check_2 = version_checks.get_project_latest_version_and_url("project_name")
+    assert check_2 is None
 
     monkeypatch.setattr(
         "requests.get",
@@ -63,7 +65,8 @@ def test_get_project_latest_version(monkeypatch: pytest.MonkeyPatch) -> None:
             }
         )
     )
-    assert version_checks.get_project_latest_version_and_url("project_name") == ("1.2.0", "https://pypi.org")
+    check_3 = version_checks.get_project_latest_version_and_url("project_name")
+    assert check_3 == ("1.2.0", "https://pypi.org")
 
 
 def test_print_project_latest_version_for_python(
@@ -102,7 +105,8 @@ def test_print_project_latest_version_for_right_version(
     version_checks.print_project_latest_version_and_url("package-name")
     out, _ = capfd.readouterr()
     assert out == (
-        "\x1b[1mpackage-name\x1b[0m's latest version is: \x1b[1m1.2.0\x1b[0m (https://pypi.org)\n"
+        "\x1b[1mpackage-name\x1b[0m's latest version is: "
+        "\x1b[1m1.2.0\x1b[0m (https://pypi.org)\n"
     )
 
 
