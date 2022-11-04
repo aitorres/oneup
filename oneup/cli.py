@@ -12,7 +12,7 @@ import requirements  # type: ignore
 import toml
 
 from oneup.output import ERROR_STR, ONEUP_STR, to_bold
-from oneup.version_checks import print_project_latest_version
+from oneup.version_checks import print_project_latest_version_and_url
 
 REQUIREMENTS_TXT: Final[str] = "requirements.txt"
 REQUIREMENTS_DEV_TXT: Final[str] = "requirements_dex.txt"
@@ -150,7 +150,7 @@ def scan_file(requirements_file_path: Path) -> None:
         dependencies = get_dependencies_from_pyproject_file(parsed_toml)
 
     for dependency in dependencies:
-        print_project_latest_version(dependency)
+        print_project_latest_version_and_url(dependency)
 
 
 def get_parser() -> argparse.ArgumentParser:

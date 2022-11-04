@@ -13,7 +13,7 @@ PYPI_API_PROJECT_URL: Final[str] = "https://pypi.org/pypi/{project_name}/json"
 REQUEST_TIMEOUT: Final[int] = 5
 
 
-def get_project_latest_version(project_name: str) -> Optional[str]:
+def get_project_latest_version_and_url(project_name: str) -> Optional[tuple[str, str]]:
     """
     Attempts to request and return the latest version, given a project name
     in PyPI. Will return `None` if the version can't be fetched.
@@ -28,10 +28,10 @@ def get_project_latest_version(project_name: str) -> Optional[str]:
         return None
 
     response_json = response.json()
-    return response_json["info"]["version"]
+    return (response_json["info"]["version"], response_json["info"]["home_page"])
 
 
-def print_project_latest_version(project_name: str) -> None:
+def print_project_latest_version_and_url(project_name: str) -> None:
     """
     Given a project name, get its latest version from PyPI and
     prints it to the standard output
@@ -41,11 +41,12 @@ def print_project_latest_version(project_name: str) -> None:
     if project_name == "python":
         return
 
-    latest_version = get_project_latest_version(project_name)
-    if latest_version is not None:
+    latest_version_url_tuple = get_project_latest_version_and_url(project_name)
+    if latest_version_url_tuple is not None:
+        latest_version, url = latest_version_url_tuple
         print(
             f"{to_bold(project_name)}'s latest version "
-            f"is: {to_bold(latest_version)}"
+            f"is: {to_bold(latest_version)} ({url})"
         )
     else:
         print(

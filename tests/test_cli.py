@@ -230,11 +230,12 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
 
     printed_dependencies: list[str] = []
 
-    def mock_print_project_latest_version(dependency: str) -> None:
+    def mock_print_project_latest_version_and_url(dependency: str) -> None:
         printed_dependencies.append(dependency)
 
     monkeypatch.setattr(
-        cli, "print_project_latest_version", mock_print_project_latest_version
+        cli, "print_project_latest_version_and_url",
+        mock_print_project_latest_version_and_url
     )
 
     # case: requirements.txt
