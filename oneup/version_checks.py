@@ -46,7 +46,7 @@ def print_project_latest_version_and_url(project_name: str) -> None:
         latest_version, url = latest_version_url_tuple
         print(
             f"{to_bold(project_name)}'s latest version "
-            f"is: {to_bold(latest_version)} ({url})"
+            f"is: {to_bold(latest_version)}" + (f" ({url})" if url else "")
         )
     else:
         print(
