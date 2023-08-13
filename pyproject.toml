@@ -36,6 +36,7 @@ toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^3.3.3"
+black = "^23.7.0"
 isort = "^5.12.0"
 pytest = "^7.4.0"
 pytest-cov = "^4.1.0"
@@ -45,6 +46,18 @@ pylint = "^2.17.5"
 types-termcolor = "^1.1.6.2"
 types-toml = "^0.10.8.7"
 types-requests = "^2.31.0.2"
+
+[tool.isort]
+src_paths = ["lancini", "test"]
+profile = "black"
+line_length = 90
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pylint.FORMAT]
+max-line-length=90
 
 [tool.poetry.scripts]
 oneup = 'oneup.cli:main'

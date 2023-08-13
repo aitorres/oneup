@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Final
 
 import pytest
-
 from oneup import cli
 
 SAMPLE_FILES_PATH: Final[Path] = Path("tests/sample_files")
@@ -24,9 +23,7 @@ def test_get_parser() -> None:
     assert parser.epilog == "Happy coding! :-)"
 
 
-def test_discover_all_requirement_files(
-    monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_discover_all_requirement_files(monkeypatch: pytest.MonkeyPatch) -> None:
     """
     Unit tests that make sure that file discovery is working as expected.
     """
@@ -39,31 +36,13 @@ def test_discover_all_requirement_files(
     monkeypatch.setattr("os.listdir", lambda: ["test", "another_test.txt"])
     assert cli.discover_all_requirement_files() == []
 
-    monkeypatch.setattr(
-        "os.listdir",
-        lambda: [
-            "requirements.txt",
-            "another_test.txt"
-        ]
-    )
+    monkeypatch.setattr("os.listdir", lambda: ["requirements.txt", "another_test.txt"])
     assert cli.discover_all_requirement_files() == [Path("requirements.txt")]
 
-    monkeypatch.setattr(
-        "os.listdir",
-        lambda: [
-            "pyproject.toml",
-            "another_test.txt"
-        ]
-    )
+    monkeypatch.setattr("os.listdir", lambda: ["pyproject.toml", "another_test.txt"])
     assert cli.discover_all_requirement_files() == [Path("pyproject.toml")]
 
-    monkeypatch.setattr(
-        "os.listdir",
-        lambda: [
-            "pyproject.toml",
-            "requirements.txt"
-        ]
-    )
+    monkeypatch.setattr("os.listdir", lambda: ["pyproject.toml", "requirements.txt"])
     assert cli.discover_all_requirement_files() == [
         Path("pyproject.toml"),
         Path("requirements.txt"),
@@ -77,7 +56,7 @@ def test_discover_all_requirement_files(
             "this is not a requirements file.txt",
             "not requirements.txt",
             "definitely not a pyproject.toml",
-        ]
+        ],
     )
     assert cli.discover_all_requirement_files() == []
 
@@ -104,18 +83,12 @@ def test_discover_requirement_file(monkeypatch: pytest.MonkeyPatch) -> None:
     is behaving properly
     """
 
-    monkeypatch.setattr(
-        cli,
-        "discover_all_requirement_files",
-        lambda: None
-    )
+    monkeypatch.setattr(cli, "discover_all_requirement_files", lambda: None)
     assert cli.discover_requirement_file(True) is None
     assert cli.discover_requirement_file(False) is None
 
     monkeypatch.setattr(
-        cli,
-        "discover_all_requirement_files",
-        lambda: [Path("requirements.txt")]
+        cli, "discover_all_requirement_files", lambda: [Path("requirements.txt")]
     )
     assert cli.discover_requirement_file(True) == Path("requirements.txt")
     assert cli.discover_requirement_file(False) == Path("requirements.txt")
@@ -123,24 +96,15 @@ def test_discover_requirement_file(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         cli,
         "discover_all_requirement_files",
-        lambda: [Path("requirements.txt"), Path("pyproject.toml")]
+        lambda: [Path("requirements.txt"), Path("pyproject.toml")],
     )
-    assert (
-        cli.discover_requirement_file(False)
-        == Path("requirements.txt")
-    )
+    assert cli.discover_requirement_file(False) == Path("requirements.txt")
 
-    monkeypatch.setattr('builtins.input', lambda _: "0")
-    assert (
-        cli.discover_requirement_file(True)
-        == Path("requirements.txt")
-    )
+    monkeypatch.setattr("builtins.input", lambda _: "0")
+    assert cli.discover_requirement_file(True) == Path("requirements.txt")
 
-    monkeypatch.setattr('builtins.input', lambda _: "1")
-    assert (
-        cli.discover_requirement_file(True)
-        == Path("pyproject.toml")
-    )
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+    assert cli.discover_requirement_file(True) == Path("pyproject.toml")
 
 
 def test_get_dependencies_from_pyproject_file() -> None:
@@ -213,13 +177,15 @@ def test_get_dependencies_from_pyproject_file() -> None:
                     "dev-dependencies": {
                         "package3": "1.2.3",
                         "package4": "4.5.6",
-                    }
+                    },
                 }
             }
         }
     ) == ["package1", "package2", "package3", "package4"]
 
-    assert cli.get_dependencies_from_pyproject_file({}) == []
+    output = cli.get_dependencies_from_pyproject_file({})
+    expected: list[str] = []
+    assert output == expected
 
 
 def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -234,8 +200,9 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
         printed_dependencies.append(dependency)
 
     monkeypatch.setattr(
-        cli, "print_project_latest_version_and_url",
-        mock_print_project_latest_version_and_url
+        cli,
+        "print_project_latest_version_and_url",
+        mock_print_project_latest_version_and_url,
     )
 
     # case: requirements.txt
