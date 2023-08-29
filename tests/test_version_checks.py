@@ -7,12 +7,11 @@ from dataclasses import dataclass
 from typing import Any
 
 import pytest
-
 from oneup import version_checks
 
 
 @dataclass(frozen=True)
-class ResponseMock():
+class ResponseMock:
     """
     Wrapper to mock a `requests` response during unit tests
     """
@@ -35,21 +34,13 @@ def test_get_project_latest_version(monkeypatch: pytest.MonkeyPatch) -> None:
     """
 
     monkeypatch.setattr(
-        "requests.get",
-        lambda *_args, **_kwargs: ResponseMock(
-            {},
-            status_code=500
-        )
+        "requests.get", lambda *_args, **_kwargs: ResponseMock({}, status_code=500)
     )
     check_1 = version_checks.get_project_latest_version_and_url("project_name")
     assert check_1 is None
 
     monkeypatch.setattr(
-        "requests.get",
-        lambda *_args, **_kwargs: ResponseMock(
-            {},
-            status_code=404
-        )
+        "requests.get", lambda *_args, **_kwargs: ResponseMock({}, status_code=404)
     )
     check_2 = version_checks.get_project_latest_version_and_url("project_name")
     assert check_2 is None
@@ -57,34 +48,26 @@ def test_get_project_latest_version(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         "requests.get",
         lambda *_args, **_kwargs: ResponseMock(
-            {
-                "info": {
-                    "version": "1.2.0",
-                    "home_page": "https://pypi.org"
-                }
-            }
-        )
+            {"info": {"version": "1.2.0", "home_page": "https://pypi.org"}}
+        ),
     )
     check_3 = version_checks.get_project_latest_version_and_url("project_name")
     assert check_3 == ("1.2.0", "https://pypi.org")
 
 
-def test_print_project_latest_version_for_python(
-    capfd: pytest.CaptureFixture
-) -> None:
+def test_print_project_latest_version_for_python(capfd: pytest.CaptureFixture) -> None:
     """
     Unit test to ensure that no project version is printed
     if the specified package is python
     """
 
-    version_checks.print_project_latest_version_and_url("python")
+    version_checks.print_project_latest_version_and_url("python", "3.10")
     out, _ = capfd.readouterr()
     assert out == ""
 
 
 def test_print_project_latest_version_for_right_version(
-    monkeypatch: pytest.MonkeyPatch,
-    capfd: pytest.CaptureFixture
+    monkeypatch: pytest.MonkeyPatch, capfd: pytest.CaptureFixture
 ) -> None:
     """
     Unit test to ensure that project versions are properly printed
@@ -94,25 +77,19 @@ def test_print_project_latest_version_for_right_version(
     monkeypatch.setattr(
         "requests.get",
         lambda *_args, **_kwargs: ResponseMock(
-            {
-                "info": {
-                    "version": "1.2.0",
-                    "home_page": "https://pypi.org"
-                }
-            }
-        )
+            {"info": {"version": "1.2.0", "home_page": "https://pypi.org"}}
+        ),
     )
-    version_checks.print_project_latest_version_and_url("package-name")
+    version_checks.print_project_latest_version_and_url("package-name", "1.1.0")
     out, _ = capfd.readouterr()
     assert out == (
         "\x1b[1mpackage-name\x1b[0m's latest version is: "
-        "\x1b[1m1.2.0\x1b[0m (https://pypi.org)\n"
+        "\x1b[1m1.2.0\x1b[0m, you currently have \x1b[1m1.1.0\x1b[0m (https://pypi.org)\n"
     )
 
 
 def test_print_project_latest_version_for_invalid_version(
-    monkeypatch: pytest.MonkeyPatch,
-    capfd: pytest.CaptureFixture
+    monkeypatch: pytest.MonkeyPatch, capfd: pytest.CaptureFixture
 ) -> None:
     """
     Unit test to ensure that a warning message is printed if a
@@ -120,12 +97,8 @@ def test_print_project_latest_version_for_invalid_version(
     """
 
     monkeypatch.setattr(
-        "requests.get",
-        lambda *_args, **_kwargs: ResponseMock(
-            {},
-            status_code=404
-        )
+        "requests.get", lambda *_args, **_kwargs: ResponseMock({}, status_code=404)
     )
-    version_checks.print_project_latest_version_and_url("package-name")
+    version_checks.print_project_latest_version_and_url("package-name", "1.2.0")
     out, _ = capfd.readouterr()
     assert out == "Could not get \x1b[1mpackage-name\x1b[0m's latest version\n"

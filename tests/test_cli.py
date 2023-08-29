@@ -3,7 +3,7 @@ Unit test collection for the command-line interface functions.
 """
 
 from pathlib import Path
-from typing import Final
+from typing import Final, Optional
 
 import pytest
 from oneup import cli
@@ -120,7 +120,7 @@ def test_get_dependencies_from_pyproject_file() -> None:
                 "package2": "4.5.6",
             }
         }
-    ) == ["package1", "package2"]
+    ) == [("package1", "1.2.3"), ("package2", "4.5.6")]
 
     assert cli.get_dependencies_from_pyproject_file(
         {
@@ -129,7 +129,7 @@ def test_get_dependencies_from_pyproject_file() -> None:
                 "package2": "4.5.6",
             }
         }
-    ) == ["package1", "package2"]
+    ) == [("package1", "1.2.3"), ("package2", "4.5.6")]
 
     assert cli.get_dependencies_from_pyproject_file(
         {
@@ -138,7 +138,7 @@ def test_get_dependencies_from_pyproject_file() -> None:
                 "package2": "4.5.6",
             }
         }
-    ) == ["package1", "package2"]
+    ) == [("package1", "1.2.3"), ("package2", "4.5.6")]
 
     assert cli.get_dependencies_from_pyproject_file(
         {
@@ -151,7 +151,7 @@ def test_get_dependencies_from_pyproject_file() -> None:
                 }
             }
         }
-    ) == ["package1", "package2"]
+    ) == [("package1", "1.2.3"), ("package2", "4.5.6")]
 
     assert cli.get_dependencies_from_pyproject_file(
         {
@@ -164,7 +164,7 @@ def test_get_dependencies_from_pyproject_file() -> None:
                 }
             }
         }
-    ) == ["package3", "package4"]
+    ) == [("package3", "1.2.3"), ("package4", "4.5.6")]
 
     assert cli.get_dependencies_from_pyproject_file(
         {
@@ -181,7 +181,12 @@ def test_get_dependencies_from_pyproject_file() -> None:
                 }
             }
         }
-    ) == ["package1", "package2", "package3", "package4"]
+    ) == [
+        ("package1", "1.2.3"),
+        ("package2", "4.5.6"),
+        ("package3", "1.2.3"),
+        ("package4", "4.5.6"),
+    ]
 
     output = cli.get_dependencies_from_pyproject_file({})
     expected: list[str] = []
@@ -194,10 +199,12 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
     from a requirements file
     """
 
-    printed_dependencies: list[str] = []
+    printed_dependencies: list[tuple[str, Optional[str]]] = []
 
-    def mock_print_project_latest_version_and_url(dependency: str) -> None:
-        printed_dependencies.append(dependency)
+    def mock_print_project_latest_version_and_url(
+        dependency: str, version: Optional[str]
+    ) -> None:
+        printed_dependencies.append((dependency, version))
 
     monkeypatch.setattr(
         cli,
@@ -208,16 +215,20 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
     # case: requirements.txt
     test_file_path_1 = SAMPLE_FILES_PATH / "requirements.txt"
     cli.scan_file(test_file_path_1)
-    assert printed_dependencies == ["mypy", "pytest", "toml"]
+    assert printed_dependencies == [
+        ("mypy", "0.930"),
+        ("pytest", "6.2.5"),
+        ("toml", None),
+    ]
 
     # case: pyproject.toml (poetry)
     printed_dependencies = []
     test_file_path_2 = SAMPLE_FILES_PATH / "pyproject.toml"
     cli.scan_file(test_file_path_2)
     assert printed_dependencies == [
-        "requests",
-        "toml",
-        "pytest",
-        "pytest-cov",
-        "flake8",
+        ("requests", "^2.26.0"),
+        ("toml", "^0.10.2"),
+        ("pytest", "^6.2.5"),
+        ("pytest-cov", "^3.0.0"),
+        ("flake8", "^4.0.1"),
     ]

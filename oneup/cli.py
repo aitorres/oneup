@@ -10,8 +10,7 @@ from typing import Any, Final, MutableMapping, Optional
 
 import requirements  # type: ignore
 import toml
-
-from oneup.output import ERROR_STR, ONEUP_STR, to_bold
+from oneup.output import ERROR_STR, ONEUP_STR, style_requirements_specs, to_bold
 from oneup.version_checks import print_project_latest_version_and_url
 
 REQUIREMENTS_TXT: Final[str] = "requirements.txt"
@@ -32,11 +31,7 @@ def discover_all_requirement_files() -> list[Path]:
 
     current_path_files = [f for f in os.listdir() if os.path.isfile(f)]
 
-    return [
-        Path(f)
-        for f in current_path_files
-        if f in SUPPORTED_REQUIREMENT_FILES
-    ]
+    return [Path(f) for f in current_path_files if f in SUPPORTED_REQUIREMENT_FILES]
 
 
 def is_valid_idx(maybe_idx: str, min_value: int, max_value: int) -> bool:
@@ -73,7 +68,7 @@ def discover_requirement_file(interactive_mode: bool) -> Optional[Path]:
     print(
         f"{ONEUP_STR} has discovered more than one requirements file in "
         "the current directory:",
-        end="\n\n"
+        end="\n\n",
     )
 
     for idx, potential_file in enumerate(potential_files):
@@ -93,7 +88,7 @@ def discover_requirement_file(interactive_mode: bool) -> Optional[Path]:
 
 def get_dependencies_from_pyproject_file(
     parsed_toml: MutableMapping[str, Any]
-) -> list[str]:
+) -> list[tuple[str, Optional[str]]]:
     """
     Given a parsed pyproject file (in toml format), returns a list of all the
     dependencies included in said file according to PEP-621
@@ -103,16 +98,16 @@ def get_dependencies_from_pyproject_file(
     # `requires` (flit), `tool.poetry.dependencies` (poetry),
     # `install_requires` (setuptools) or `dependencies`
     if "dependencies" in parsed_toml:
-        return list(parsed_toml["dependencies"].keys())
+        return list(parsed_toml["dependencies"].items())
 
     if "install_requires" in parsed_toml:
-        return list(parsed_toml["install_requires"].keys())
+        return list(parsed_toml["install_requires"].items())
 
     if "requires" in parsed_toml:
-        return list(parsed_toml["requires"].keys())
+        return list(parsed_toml["requires"].items())
 
     if "tool" in parsed_toml:
-        dependencies: list[str] = []
+        dependencies: list[tuple[str, Optional[str]]] = []
 
         tool_specs: MutableMapping[str, Any] = parsed_toml["tool"]
         if "poetry" in tool_specs:
@@ -120,9 +115,7 @@ def get_dependencies_from_pyproject_file(
 
             for key in ("dependencies", "dev-dependencies"):
                 if key in poetry_specs:
-                    dependencies.extend(
-                        list(poetry_specs[key].keys())
-                    )
+                    dependencies.extend(list(poetry_specs[key].items()))
 
         return dependencies
 
@@ -137,20 +130,19 @@ def scan_file(requirements_file_path: Path) -> None:
 
     file_name = requirements_file_path.name
     if file_name in (REQUIREMENTS_TXT, REQUIREMENTS_DEV_TXT):
-        with open(
-            requirements_file_path,
-            "r",
-            encoding="utf8"
-        ) as requirements_file:
+        with open(requirements_file_path, "r", encoding="utf8") as requirements_file:
             parsed_file = requirements.parse(requirements_file)
-            dependencies: list[str] = [req["name"] for req in parsed_file]
+            dependencies: list[tuple[str, Optional[str]]] = [
+                (req["name"], style_requirements_specs(req["specs"]))
+                for req in parsed_file
+            ]
 
     elif file_name == PYPROJECT_TOML:
         parsed_toml = toml.load(requirements_file_path)
         dependencies = get_dependencies_from_pyproject_file(parsed_toml)
 
-    for dependency in dependencies:
-        print_project_latest_version_and_url(dependency)
+    for name, version in dependencies:
+        print_project_latest_version_and_url(name, version)
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -160,7 +152,7 @@ def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="oneup",
         description="A CLI tool to check for dependency updates for Python",
-        epilog="Happy coding! :-)"
+        epilog="Happy coding! :-)",
     )
     parser.add_argument(
         "--file",
@@ -179,9 +171,7 @@ def get_parser() -> argparse.ArgumentParser:
         help="Deactivate interactive mode (no input will be required)",
     )
 
-    parser.set_defaults(
-        interactive_mode=True
-    )
+    parser.set_defaults(interactive_mode=True)
 
     return parser
 

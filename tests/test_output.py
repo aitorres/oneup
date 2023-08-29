@@ -20,3 +20,18 @@ def test_to_bold() -> None:
     """
 
     assert output.to_bold("this is a text") == "\x1b[1mthis is a text\x1b[0m"
+
+
+def test_style_requirements_specs() -> None:
+    """
+    Test that ensures that spec lists are printed as expected
+    """
+
+    assert output.style_requirements_specs([]) is None
+    assert output.style_requirements_specs([("==", "1.2.3")]) == "1.2.3"
+    assert output.style_requirements_specs([("^", "1.2.3")]) == "^ 1.2.3"
+    assert output.style_requirements_specs([("<=", "1.2.3")]) == "<= 1.2.3"
+    assert (
+        output.style_requirements_specs([(">", "1.2.3"), ("<=", "3.0.1")])
+        == "> 1.2.3, <= 3.0.1"
+    )
