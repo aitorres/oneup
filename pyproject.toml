@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "oneup"
-version = "0.2.1"
+version = "0.3.0"
 description = "A CLI tool to check for dependency updates for Python, in Python"
 authors = ["Andrés Ignacio Torres <dev@aitorres.com>"]
 license = "AGPL-3.0-only"
