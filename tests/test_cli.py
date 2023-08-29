@@ -247,3 +247,7 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
         ("pytest-cov", "^3.0.0"),
         ("flake8", "^4.0.1"),
     ]
+
+    # case: unknown file
+    with pytest.raises(SystemExit):
+        cli.scan_file(Path("unknown_file.txt"))

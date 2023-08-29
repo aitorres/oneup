@@ -142,6 +142,10 @@ def scan_file(requirements_file_path: Path) -> None:
         parsed_toml = toml.load(requirements_file_path)
         dependencies = get_dependencies_from_pyproject_file(parsed_toml)
 
+    else:
+        print(f"{ERROR_STR}: Unsupported requirements file!")
+        sys.exit(1)
+
     for name, version in dependencies:
         print_project_latest_version_and_url(name, version)
 
