@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from typing import Any, Final, MutableMapping, Optional
 
-import requirements  # type: ignore
+import requirements
 import toml
 from oneup.output import ERROR_STR, ONEUP_STR, style_requirements_specs, to_bold
 from oneup.version_checks import print_project_latest_version_and_url
