@@ -75,8 +75,9 @@ def discover_requirement_file(interactive_mode: bool) -> Optional[Path]:
         print(f"({idx}) {potential_file}")
 
     if not interactive_mode:
-        print("\nThe first file will be selected automatically.")
-        return potential_files[0]
+        first_file: Path = potential_files[0]
+        print(f"\n`{first_file}` will be selected automatically.")
+        return first_file
 
     amount_of_potential_files = len(potential_files)
     maybe_idx: str = input("Please select an option by entering its number: ")
