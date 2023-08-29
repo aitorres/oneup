@@ -3,7 +3,7 @@ Unit test collection for the command-line interface functions.
 """
 
 from pathlib import Path
-from typing import Final, Optional
+from typing import Callable, Final, Optional
 
 import pytest
 from oneup import cli
@@ -104,6 +104,21 @@ def test_discover_requirement_file(monkeypatch: pytest.MonkeyPatch) -> None:
     assert cli.discover_requirement_file(True) == Path("requirements.txt")
 
     monkeypatch.setattr("builtins.input", lambda _: "1")
+    assert cli.discover_requirement_file(True) == Path("pyproject.toml")
+
+    def mock_double_input_function() -> Callable[[str], str]:
+        values = ["2", "1"]
+        idx: int = 0
+
+        def mock_double_input(_: str) -> str:
+            nonlocal idx
+            value = values[idx]
+            idx += 1
+            return value
+
+        return mock_double_input
+
+    monkeypatch.setattr("builtins.input", mock_double_input_function())
     assert cli.discover_requirement_file(True) == Path("pyproject.toml")
 
 
