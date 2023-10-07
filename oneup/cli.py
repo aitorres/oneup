@@ -118,6 +118,12 @@ def get_dependencies_from_pyproject_file(
                 if key in poetry_specs:
                     dependencies.extend(list(poetry_specs[key].items()))
 
+            if "group" in poetry_specs:
+                for _, group_dependencies in poetry_specs["group"].items():
+                    dependencies.extend(
+                        list(group_dependencies["dependencies"].items())
+                    )
+
         return dependencies
 
     return []
