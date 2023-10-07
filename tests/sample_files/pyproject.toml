@@ -6,3 +6,7 @@ toml = "^0.10.2"
 pytest = "^6.2.5"
 pytest-cov = "^3.0.0"
 flake8 = "^4.0.1"
+
+[tool.poetry.group.test.dependencies]
+Django = "^4.2.1"
+django-stubs = "^1.7.0"
