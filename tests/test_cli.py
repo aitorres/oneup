@@ -229,7 +229,7 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
 
     # case: requirements.txt
     test_file_path_1 = SAMPLE_FILES_PATH / "requirements.txt"
-    cli.scan_file(test_file_path_1)
+    cli.scan_file(test_file_path_1, 1)
     assert printed_dependencies == [
         ("mypy", "0.930"),
         ("pytest", "6.2.5"),
@@ -239,7 +239,7 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
     # case: pyproject.toml (poetry)
     printed_dependencies = []
     test_file_path_2 = SAMPLE_FILES_PATH / "pyproject.toml"
-    cli.scan_file(test_file_path_2)
+    cli.scan_file(test_file_path_2, 1)
     assert printed_dependencies == [
         ("requests", "^2.26.0"),
         ("toml", "^0.10.2"),
@@ -250,6 +250,20 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
         ("django-stubs", "^1.7.0"),
     ]
 
+    # case: pyproject.toml (poetry) with multiple threads
+    printed_dependencies = []
+    test_file_path_2 = SAMPLE_FILES_PATH / "pyproject.toml"
+    cli.scan_file(test_file_path_2, 2)
+    assert set(printed_dependencies) == {
+        ("requests", "^2.26.0"),
+        ("toml", "^0.10.2"),
+        ("pytest", "^6.2.5"),
+        ("pytest-cov", "^3.0.0"),
+        ("flake8", "^4.0.1"),
+        ("Django", "^4.2.1"),
+        ("django-stubs", "^1.7.0"),
+    }
+
     # case: unknown file
     with pytest.raises(SystemExit):
-        cli.scan_file(Path("unknown_file.txt"))
+        cli.scan_file(Path("unknown_file.txt"), 1)

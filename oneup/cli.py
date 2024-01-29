@@ -6,6 +6,7 @@ import argparse
 import os
 import sys
 from pathlib import Path
+from threading import Thread
 from typing import Any, Final, MutableMapping, Optional
 
 import requirements
@@ -129,7 +130,17 @@ def get_dependencies_from_pyproject_file(
     return []
 
 
-def scan_file(requirements_file_path: Path) -> None:
+def scan_dependency_list(dependencies: list[tuple[str, Optional[str]]]) -> None:
+    """
+    Scans a list of dependencies and queries for their latest version
+    """
+
+    for dependency in dependencies:
+        name, version = dependency
+        print_project_latest_version_and_url(name, version)
+
+
+def scan_file(requirements_file_path: Path, n_threads: int) -> None:
     """
     Scans a supported requirements file to check for dependencies
     and query for their latest version
@@ -152,8 +163,19 @@ def scan_file(requirements_file_path: Path) -> None:
         print(f"{ERROR_STR}: Unsupported requirements file!")
         sys.exit(1)
 
-    for name, version in dependencies:
-        print_project_latest_version_and_url(name, version)
+    # Start threads to query PyPI
+    threads: list[Thread] = []
+    for i in range(n_threads):
+        thread = Thread(
+            target=scan_dependency_list,
+            args=[dependencies[i::n_threads]],
+        )
+        threads.append(thread)
+        thread.start()
+
+    # Wait for all threads to finish
+    for thread in threads:
+        thread.join()
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -176,6 +198,13 @@ def get_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--threads",
+        metavar="T",
+        type=int,
+        default=1,
+        help="Number of threads to use for querying PyPI (default: 1)",
+    )
+    parser.add_argument(
         "--no-input",
         action="store_false",
         dest="interactive_mode",
@@ -195,6 +224,7 @@ def main() -> None:
     parser = get_parser()
     args = parser.parse_args()
     interactive_mode: bool = args.interactive_mode
+    n_threads: int = args.threads
 
     # Determine file that will be scanned
     maybe_file_path: Optional[Path] = args.file
@@ -210,7 +240,7 @@ def main() -> None:
 
     file_path = maybe_file_path
     print(f"{ONEUP_STR} will scan {to_bold(str(file_path))} for updates")
-    scan_file(file_path)
+    scan_file(file_path, n_threads)
 
 
 if __name__ == "__main__":
