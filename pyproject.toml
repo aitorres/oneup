@@ -35,10 +35,10 @@ requirements-parser = "^0.5.0"
 toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
-pre-commit = "^3.6.0"
-black = "^24.1.1"
+pre-commit = "^3.6.1"
+black = "^24.2.0"
 isort = "^5.13.2"
-pytest = "^8.0.0"
+pytest = "^8.0.1"
 pytest-cov = "^4.1.0"
 flake8 = "^7.0.0"
 mypy = "^1.8.0"
