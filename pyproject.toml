@@ -35,17 +35,17 @@ requirements-parser = "^0.5.0"
 toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
-pre-commit = "^3.6.2"
+pre-commit = "^3.7.0"
 black = "^24.3.0"
 isort = "^5.13.2"
-pytest = "^8.0.2"
-pytest-cov = "^4.1.0"
+pytest = "^8.1.1"
+pytest-cov = "^5.0.0"
 flake8 = "^7.0.0"
-mypy = "^1.8.0"
+mypy = "^1.9.0"
 pylint = "^3.1.0"
 types-termcolor = "^1.1.6.2"
-types-toml = "^0.10.8.7"
-types-requests = "^2.31.0.20240218"
+types-toml = "^0.10.8.20240310"
+types-requests = "^2.31.0.20240311"
 
 [tool.isort]
 src_paths = ["lancini", "test"]
