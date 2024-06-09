@@ -36,6 +36,7 @@ toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^3.7.1"
+nodeenv = "1.8.0"
 black = "^24.4.2"
 isort = "^5.13.2"
 pytest = "^8.2.2"
