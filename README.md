@@ -4,6 +4,8 @@ A CLI tool to check for dependency updates for Python, in Python.
 
 ## What's this?
 
+![Screenshot of oneup's output](./assets/screenshot.png)
+
 `oneup` is a simple command-line interface to aid developers in determining the most recent version of their project's dependencies, as specified in files such as `requirements.txt` and `pyproject.toml`.
 
 Right now, the tool can parse your dependency lists and report the latest version of all your dependencies to the standard output. In the future, the tool might add some other features such as: automatically updating your lists with a latest version, if desired, and only showing the latest version of dependencies if they differ from your currently specified version (or range).
