@@ -8,6 +8,8 @@ from termcolor import colored
 
 ERROR_STR: Final[str] = colored("ERROR", "red", attrs=["bold"])
 ONEUP_STR: Final[str] = colored("oneup", attrs=["bold"])
+VERSION_MATCH_STR: Final[str] = colored("version match", "green", attrs=["bold"])
+VERSION_MISMATCH_STR: Final[str] = colored("version mismatch", "yellow", attrs=["bold"])
 
 
 def to_bold(string: str) -> str:

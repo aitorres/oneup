@@ -84,7 +84,74 @@ def test_print_project_latest_version_for_right_version(
     out, _ = capfd.readouterr()
     assert out == (
         "\x1b[1mpackage-name\x1b[0m's latest version is: "
-        "\x1b[1m1.2.0\x1b[0m, you currently have \x1b[1m1.1.0\x1b[0m (https://pypi.org)\n"
+        "\x1b[1m1.2.0\x1b[0m, you currently have \x1b[1m1.1.0\x1b[0m "
+        "(\x1b[1m\x1b[33mversion mismatch\x1b[0m) (https://pypi.org)\n"
+    )
+
+
+def test_print_project_latest_version_for_right_version_with_match(
+    monkeypatch: pytest.MonkeyPatch, capfd: pytest.CaptureFixture
+) -> None:
+    """
+    Unit test to ensure that project versions are properly printed
+    when they're successfully downloaded
+    """
+
+    monkeypatch.setattr(
+        "requests.get",
+        lambda *_args, **_kwargs: ResponseMock(
+            {"info": {"version": "1.2.0", "home_page": "https://pypi.org"}}
+        ),
+    )
+    version_checks.print_project_latest_version_and_url("package-name", "1.2.0")
+    out, _ = capfd.readouterr()
+    assert out == (
+        "\x1b[1mpackage-name\x1b[0m's latest version is: "
+        "\x1b[1m1.2.0\x1b[0m, you currently have \x1b[1m1.2.0\x1b[0m "
+        "(\x1b[1m\x1b[32mversion match\x1b[0m) (https://pypi.org)\n"
+    )
+
+
+def test_print_project_latest_version_for_right_version_with_no_current_version(
+    monkeypatch: pytest.MonkeyPatch, capfd: pytest.CaptureFixture
+) -> None:
+    """
+    Unit test to ensure that project versions are properly printed
+    when they're successfully downloaded
+    """
+
+    monkeypatch.setattr(
+        "requests.get",
+        lambda *_args, **_kwargs: ResponseMock(
+            {"info": {"version": "1.2.0", "home_page": "https://pypi.org"}}
+        ),
+    )
+    version_checks.print_project_latest_version_and_url("package-name", None)
+    out, _ = capfd.readouterr()
+    assert out == (
+        "\x1b[1mpackage-name\x1b[0m's latest version is: "
+        "\x1b[1m1.2.0\x1b[0m (https://pypi.org)\n"
+    )
+
+
+def test_print_project_latest_version_for_right_version_with_no_current_version_nor_url(
+    monkeypatch: pytest.MonkeyPatch, capfd: pytest.CaptureFixture
+) -> None:
+    """
+    Unit test to ensure that project versions are properly printed
+    when they're successfully downloaded
+    """
+
+    monkeypatch.setattr(
+        "requests.get",
+        lambda *_args, **_kwargs: ResponseMock(
+            {"info": {"version": "1.2.0", "home_page": ""}}
+        ),
+    )
+    version_checks.print_project_latest_version_and_url("package-name", None)
+    out, _ = capfd.readouterr()
+    assert out == (
+        "\x1b[1mpackage-name\x1b[0m's latest version is: " "\x1b[1m1.2.0\x1b[0m\n"
     )
 
 
@@ -102,3 +169,16 @@ def test_print_project_latest_version_for_invalid_version(
     version_checks.print_project_latest_version_and_url("package-name", "1.2.0")
     out, _ = capfd.readouterr()
     assert out == "Could not get \x1b[1mpackage-name\x1b[0m's latest version\n"
+
+
+def test_is_version_match() -> None:
+    """
+    Unit test to ensure that the function that checks if two
+    version strings match works as expected
+    """
+
+    assert version_checks.is_version_match("1.2.0", "~1.2.0")
+    assert version_checks.is_version_match("1.2.0", "1.2.0")
+    assert version_checks.is_version_match("1.2.0", "^1.2.0")
+    assert not version_checks.is_version_match("1.2.0", "1.1.0")
+    assert version_checks.is_version_match("1.2.0", None) is None
