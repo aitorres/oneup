@@ -33,6 +33,7 @@ termcolor = "^1.1.0"
 requests = "^2.32.3"
 requirements-parser = "^0.9.0"
 toml = "^0.10.2"
+setuptools = "70.2.0"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^3.7.1"
