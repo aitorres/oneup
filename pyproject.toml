@@ -42,11 +42,11 @@ isort = "^5.13.2"
 pytest = "^8.2.2"
 pytest-cov = "^5.0.0"
 flake8 = "^7.1.0"
-mypy = "^1.10.0"
-pylint = "^3.2.3"
+mypy = "^1.10.1"
+pylint = "^3.2.5"
 types-termcolor = "^1.1.6.2"
 types-toml = "^0.10.8.20240310"
-types-requests = "^2.32.0.20240602"
+types-requests = "^2.32.0.20240622"
 
 [tool.isort]
 src_paths = ["lancini", "test"]
