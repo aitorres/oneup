@@ -248,6 +248,7 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
         ("flake8", "^4.0.1"),
         ("Django", "^4.2.1"),
         ("django-stubs", "^1.7.0"),
+        ("standard-imghdr", "^3.13.0"),
     ]
 
     # case: pyproject.toml (poetry) with multiple threads
@@ -262,6 +263,7 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
         ("flake8", "^4.0.1"),
         ("Django", "^4.2.1"),
         ("django-stubs", "^1.7.0"),
+        ("standard-imghdr", "^3.13.0"),
     }
 
     # case: unknown file

@@ -99,17 +99,12 @@ def get_dependencies_from_pyproject_file(
     # according to PEP 621, dependencies should be located in either
     # `requires` (flit), `tool.poetry.dependencies` (poetry),
     # `install_requires` (setuptools) or `dependencies`
-    if "dependencies" in parsed_toml:
-        return list(parsed_toml["dependencies"].items())
+    for key in ["dependencies", "install_requires", "requires"]:
+        if key in parsed_toml:
+            return list(parsed_toml[key].items())
 
-    if "install_requires" in parsed_toml:
-        return list(parsed_toml["install_requires"].items())
-
-    if "requires" in parsed_toml:
-        return list(parsed_toml["requires"].items())
-
+    dependencies: list[tuple[str, Optional[str]]] = []
     if "tool" in parsed_toml:
-        dependencies: list[tuple[str, Optional[str]]] = []
 
         tool_specs: MutableMapping[str, Any] = parsed_toml["tool"]
         if "poetry" in tool_specs:
@@ -125,9 +120,22 @@ def get_dependencies_from_pyproject_file(
                         list(group_dependencies["dependencies"].items())
                     )
 
-        return dependencies
+    return flatten_dependencies(dependencies)
 
-    return []
+
+def flatten_dependencies(
+    dependencies: list[tuple[str, Optional[str]]]
+) -> list[tuple[str, Optional[str]]]:
+    """
+    Flattens a list of dependencies by selecting versions
+    inside dictionaries, if any
+    """
+
+    for idx, (name, version) in enumerate(dependencies):
+        if isinstance(version, dict):
+            dependencies[idx] = (name, version["version"])
+
+    return dependencies
 
 
 def scan_dependency_list(dependencies: list[tuple[str, Optional[str]]]) -> None:
