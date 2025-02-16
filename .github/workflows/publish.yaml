@@ -52,6 +52,10 @@ jobs:
           path: dist/
       - name: Publish distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # NOTE(aitorres): required due to https://github.com/pypa/gh-action-pypi-publish/issues/283
+          # NOTE(aitorres): see also https://github.com/pypa/twine/pull/1172
+          attestations: false
 
   release:
     name: Create GitHub Release
