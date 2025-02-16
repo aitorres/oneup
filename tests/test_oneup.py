@@ -10,4 +10,4 @@ def test_version():
     Tests that the oneup module is set to the correct version
     """
 
-    assert __version__ == "0.7.0"
+    assert __version__ == "0.7.1"
