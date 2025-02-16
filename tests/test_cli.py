@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Callable, Final, Optional
 
 import pytest
-from oneup import cli
+from oneup import __version__, cli
 
 SAMPLE_FILES_PATH: Final[Path] = Path("tests/sample_files")
 
@@ -20,7 +20,7 @@ def test_get_parser() -> None:
     parser = cli.get_parser()
     assert isinstance(parser.description, str)
     assert "A CLI tool" in parser.description
-    assert parser.epilog == "Happy coding! :-)"
+    assert parser.epilog == f"(v{__version__}) | Happy coding! :-)"
 
 
 def test_discover_all_requirement_files(monkeypatch: pytest.MonkeyPatch) -> None:
