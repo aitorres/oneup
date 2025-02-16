@@ -5,12 +5,13 @@ Functions and other helpers for `oneup`'s command-line interface.
 import argparse
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from threading import Thread
 from typing import Any, Final, MutableMapping, Optional
 
 import requirements
 import toml
+from oneup import __version__
 from oneup.output import ERROR_STR, ONEUP_STR, style_requirements_specs, to_bold
 from oneup.version_checks import print_project_latest_version_and_url
 
@@ -89,7 +90,7 @@ def discover_requirement_file(interactive_mode: bool) -> Optional[Path]:
 
 
 def get_dependencies_from_pyproject_file(
-    parsed_toml: MutableMapping[str, Any]
+    parsed_toml: MutableMapping[str, Any],
 ) -> list[tuple[str, Optional[str]]]:
     """
     Given a parsed pyproject file (in toml format), returns a list of all the
@@ -124,7 +125,7 @@ def get_dependencies_from_pyproject_file(
 
 
 def flatten_dependencies(
-    dependencies: list[tuple[str, Optional[str]]]
+    dependencies: list[tuple[str, Optional[str]]],
 ) -> list[tuple[str, Optional[str]]]:
     """
     Flattens a list of dependencies by selecting versions
@@ -171,19 +172,15 @@ def scan_file(requirements_file_path: Path, n_threads: int) -> None:
         print(f"{ERROR_STR}: Unsupported requirements file!")
         sys.exit(1)
 
-    # Start threads to query PyPI
-    threads: list[Thread] = []
-    for i in range(n_threads):
-        thread = Thread(
-            target=scan_dependency_list,
-            args=[dependencies[i::n_threads]],
-        )
-        threads.append(thread)
-        thread.start()
+    with ThreadPoolExecutor(max_workers=n_threads) as executor:
+        futures = [
+            executor.submit(scan_dependency_list, dependencies[i::n_threads])
+            for i in range(n_threads)
+        ]
 
-    # Wait for all threads to finish
-    for thread in threads:
-        thread.join()
+        # Wait for all threads to finish
+        for future in futures:
+            future.result()
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -193,7 +190,7 @@ def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="oneup",
         description="A CLI tool to check for dependency updates for Python",
-        epilog="Happy coding! :-)",
+        epilog=f"(v{__version__}) | Happy coding! :-)",
     )
     parser.add_argument(
         "--file",
