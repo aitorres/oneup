@@ -36,17 +36,16 @@ toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^4.1.0"
-nodeenv = "1.9.1"
 black = "^25.1.0"
-isort = "^6.0.0"
-pytest = "^8.3.4"
+isort = "^6.0.1"
+pytest = "^8.3.5"
 pytest-cov = "^6.0.0"
-flake8 = "^7.1.1"
+flake8 = "^7.1.2"
 mypy = "^1.15.0"
-pylint = "^3.3.4"
+pylint = "^3.3.5"
 types-termcolor = "^1.1.6.2"
 types-toml = "^0.10.8.20240310"
-types-requests = "^2.32.0.20241016"
+types-requests = "^2.32.0.20250306"
 
 [tool.isort]
 src_paths = ["lancini", "test"]
