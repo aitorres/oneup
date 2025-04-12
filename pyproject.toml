@@ -39,13 +39,13 @@ pre-commit = "^4.2.0"
 black = "^25.1.0"
 isort = "^6.0.1"
 pytest = "^8.3.5"
-pytest-cov = "^6.0.0"
-flake8 = "^7.1.2"
+pytest-cov = "^6.1.1"
+flake8 = "^7.2.0"
 mypy = "^1.15.0"
 pylint = "^3.3.6"
 types-termcolor = "^1.1.6.2"
 types-toml = "^0.10.8.20240310"
-types-requests = "^2.32.0.20250306"
+types-requests = "^2.32.0.20250328"
 
 [tool.isort]
 src_paths = ["lancini", "test"]
