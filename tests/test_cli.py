@@ -251,10 +251,23 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
         ("standard-imghdr", "^3.13.0"),
     ]
 
+    # case: pyproject.toml (uv)
+    printed_dependencies = []
+    test_file_path_3 = SAMPLE_FILES_PATH / "uv" / "pyproject.toml"
+    cli.scan_file(test_file_path_3, 1)
+    assert printed_dependencies == [
+        ("barkr", "0.9.6"),
+        ("python-dotenv", "1.0.1"),
+        ("sentry-sdk", "2.25.1"),
+        ("black", "25.1.0"),
+        ("flake8", "7.1.2"),
+        ("isort", "6.0.1"),
+    ]
+
     # case: pyproject.toml (poetry) with multiple threads
     printed_dependencies = []
-    test_file_path_2 = SAMPLE_FILES_PATH / "pyproject.toml"
-    cli.scan_file(test_file_path_2, 2)
+    test_file_path_4 = SAMPLE_FILES_PATH / "pyproject.toml"
+    cli.scan_file(test_file_path_4, 2)
     assert set(printed_dependencies) == {
         ("requests", "^2.26.0"),
         ("toml", "^0.10.2"),

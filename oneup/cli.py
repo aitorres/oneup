@@ -23,6 +23,17 @@ SUPPORTED_REQUIREMENT_FILES: Final[list[str]] = [
     REQUIREMENTS_DEV_TXT,
     PYPROJECT_TOML,
 ]
+VERSION_SEPARATORS: Final[list[str]] = [
+    "==~",
+    "===",
+    ">=",
+    "<=",
+    "==",
+    "!=",
+    "~=",
+    "<",
+    ">",
+]
 
 
 def discover_all_requirement_files() -> list[Path]:
@@ -105,9 +116,26 @@ def get_dependencies_from_pyproject_file(
             return list(parsed_toml[key].items())
 
     dependencies: list[tuple[str, Optional[str]]] = []
-    if "tool" in parsed_toml:
 
+    dependencies.extend(extract_poetry_dependencies(parsed_toml))
+    dependencies.extend(extract_uv_dependencies(parsed_toml))
+
+    return flatten_dependencies(dependencies)
+
+
+def extract_poetry_dependencies(
+    parsed_toml: MutableMapping[str, Any],
+) -> list[tuple[str, Optional[str]]]:
+    """
+    Given a parsed pyproject file (in toml format), returns a list of all the
+    dependencies included in said file according to poetry's format
+    """
+
+    dependencies: list[tuple[str, Optional[str]]] = []
+
+    if "tool" in parsed_toml:
         tool_specs: MutableMapping[str, Any] = parsed_toml["tool"]
+
         if "poetry" in tool_specs:
             poetry_specs: MutableMapping[str, Any] = tool_specs["poetry"]
 
@@ -121,7 +149,57 @@ def get_dependencies_from_pyproject_file(
                         list(group_dependencies["dependencies"].items())
                     )
 
-    return flatten_dependencies(dependencies)
+    return dependencies
+
+
+def extract_uv_dependencies(
+    parsed_toml: MutableMapping[str, Any],
+) -> list[tuple[str, Optional[str]]]:
+    """
+    Given a parsed pyproject file (in toml format), returns a list of all the
+    dependencies included in said file according to uv's format
+    """
+
+    dependencies: list[tuple[str, Optional[str]]] = []
+
+    if "project" in parsed_toml:
+        project_specs: MutableMapping[str, Any] = parsed_toml["project"]
+
+        if "dependencies" in project_specs:
+            dependencies.extend(
+                extract_dependencies_from_str_list(project_specs["dependencies"])
+            )
+
+    if "dependency-groups" in parsed_toml:
+        dependency_groups: MutableMapping[str, Any] = parsed_toml["dependency-groups"]
+
+        for group in dependency_groups:
+            dependencies.extend(
+                extract_dependencies_from_str_list(dependency_groups[group])
+            )
+
+    return dependencies
+
+
+def extract_dependencies_from_str_list(
+    dependency_list: list[str],
+) -> list[tuple[str, Optional[str]]]:
+    """
+    Given a list of strings, returns a list of tuples containing
+    the name and version of the dependencies.
+    Useful for extracting dependencies from `uv` pyproject.toml files
+    """
+
+    dependencies: list[tuple[str, Optional[str]]] = []
+
+    for dependency in dependency_list:
+        for separator in VERSION_SEPARATORS:
+            if separator in dependency:
+                name, version = dependency.split(separator)
+                dependencies.append((name.strip(), version.strip()))
+                break
+
+    return dependencies
 
 
 def flatten_dependencies(
