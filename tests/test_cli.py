@@ -2,6 +2,7 @@
 Unit test collection for the command-line interface functions.
 """
 
+import sys
 from pathlib import Path
 from typing import Callable, Final, Optional
 
@@ -282,3 +283,76 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
     # case: unknown file
     with pytest.raises(SystemExit):
         cli.scan_file(Path("unknown_file.txt"), 1)
+
+
+def test_main_with_file_arg(monkeypatch: pytest.MonkeyPatch) -> None:
+    """
+    Tests the main function when a file is provided via command line argument
+    """
+    test_file = SAMPLE_FILES_PATH / "requirements.txt"
+    test_args = ["oneup", "--file", str(test_file)]
+    monkeypatch.setattr(sys, "argv", test_args)
+
+    scanned_files = []
+
+    def mock_scan_file(file_path: Path, n_threads: int) -> None:
+        scanned_files.append((file_path, n_threads))
+
+    monkeypatch.setattr(cli, "scan_file", mock_scan_file)
+    cli.main()
+    assert scanned_files == [(test_file, 1)]
+
+
+def test_main_with_threads(monkeypatch: pytest.MonkeyPatch) -> None:
+    """
+    Tests the main function when thread count is specified
+    """
+    test_file = SAMPLE_FILES_PATH / "requirements.txt"
+    test_args = ["oneup", "--file", str(test_file), "--threads", "4"]
+    monkeypatch.setattr(sys, "argv", test_args)
+
+    scanned_files = []
+
+    def mock_scan_file(file_path: Path, n_threads: int) -> None:
+        scanned_files.append((file_path, n_threads))
+
+    monkeypatch.setattr(cli, "scan_file", mock_scan_file)
+    cli.main()
+    assert scanned_files == [(test_file, 4)]
+
+
+def test_main_no_file_found(monkeypatch: pytest.MonkeyPatch) -> None:
+    """
+    Tests the main function when no requirements file is found
+    """
+    test_args = ["oneup"]
+    monkeypatch.setattr(sys, "argv", test_args)
+    monkeypatch.setattr(cli, "discover_requirement_file", lambda _: None)
+
+    with pytest.raises(SystemExit):
+        cli.main()
+
+
+def test_main_auto_discover(monkeypatch: pytest.MonkeyPatch) -> None:
+    """
+    Tests the main function when it auto-discovers a requirements file
+    """
+    test_file = Path("requirements.txt")
+    test_args = ["oneup"]
+    monkeypatch.setattr(sys, "argv", test_args)
+
+    def mock_discover_requirement_file(_: bool) -> Optional[Path]:
+        return test_file
+
+    scanned_files = []
+
+    def mock_scan_file(file_path: Path, n_threads: int) -> None:
+        scanned_files.append((file_path, n_threads))
+
+    monkeypatch.setattr(
+        cli, "discover_requirement_file", mock_discover_requirement_file
+    )
+    monkeypatch.setattr(cli, "scan_file", mock_scan_file)
+
+    cli.main()
+    assert scanned_files == [(test_file, 1)]
