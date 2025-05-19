@@ -42,7 +42,7 @@ oneup --help
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-Please make sure to update tests as appropriate; a minimum coverage of 80% is expected (and enforced by Github Actions!).
+Please make sure to update tests as appropriate; a minimum coverage of 90% is expected (and enforced by Github Actions!).
 
 ## License
 
