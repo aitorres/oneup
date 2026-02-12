@@ -4,6 +4,7 @@ Functions and other helpers for `oneup`'s command-line interface.
 
 import argparse
 import os
+import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -195,8 +196,12 @@ def extract_dependencies_from_str_list(
     for dependency in dependency_list:
         for separator in VERSION_SEPARATORS:
             if separator in dependency:
-                name, version = dependency.split(separator)
-                dependencies.append((name.strip(), version.strip()))
+                name, version = dependency.split(separator, 1)
+                # Clean up parenthesized version specifiers (PEP 508 style)
+                # e.g. "tweepy (>=4.16.0,<5.0.0)" -> ("tweepy", "4.16.0")
+                name = re.sub(r"[\s(]+$", "", name)
+                version = re.sub(r"[,)].+", "", version).strip()
+                dependencies.append((name, version))
                 break
 
     return dependencies

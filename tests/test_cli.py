@@ -265,6 +265,16 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
         ("isort", "6.0.1"),
     ]
 
+    # case: pyproject.toml (poetry 2 with PEP 621 project.dependencies)
+    printed_dependencies = []
+    test_file_path_poetry2 = SAMPLE_FILES_PATH / "poetry2" / "pyproject.toml"
+    cli.scan_file(test_file_path_poetry2, 1)
+    assert printed_dependencies == [
+        ("tweepy", "4.16.0"),
+        ("requests", "2.32.5"),
+        ("atproto", "0.0.57"),
+    ]
+
     # case: pyproject.toml (poetry) with multiple threads
     printed_dependencies = []
     test_file_path_4 = SAMPLE_FILES_PATH / "pyproject.toml"
