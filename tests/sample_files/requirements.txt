@@ -1,3 +1,4 @@
 mypy==0.930
 pytest==6.2.5
 toml
+Flask~=3.1.3

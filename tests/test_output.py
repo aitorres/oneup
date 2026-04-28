@@ -30,6 +30,7 @@ def test_style_requirements_specs() -> None:
     assert output.style_requirements_specs([]) is None
     assert output.style_requirements_specs([("==", "1.2.3")]) == "1.2.3"
     assert output.style_requirements_specs([("^", "1.2.3")]) == "^ 1.2.3"
+    assert output.style_requirements_specs([("~=", "3.1.3")]) == "~=3.1.3"
     assert output.style_requirements_specs([("<=", "1.2.3")]) == "<= 1.2.3"
     assert (
         output.style_requirements_specs([(">", "1.2.3"), ("<=", "3.0.1")])

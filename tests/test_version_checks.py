@@ -180,5 +180,7 @@ def test_is_version_match() -> None:
     assert version_checks.is_version_match("1.2.0", "~1.2.0")
     assert version_checks.is_version_match("1.2.0", "1.2.0")
     assert version_checks.is_version_match("1.2.0", "^1.2.0")
+    assert version_checks.is_version_match("3.1.3", "~=3.1.3")
     assert not version_checks.is_version_match("1.2.0", "1.1.0")
+    assert not version_checks.is_version_match("3.2.0", "~=3.1.3")
     assert version_checks.is_version_match("1.2.0", None) is None

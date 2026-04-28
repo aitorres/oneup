@@ -39,7 +39,7 @@ def is_version_match(
     if current_version is None:
         return None
 
-    return current_version.replace("^", "").replace("~", "") == latest_version
+    return current_version.lstrip("^~=") == latest_version
 
 
 def print_project_latest_version_and_url(

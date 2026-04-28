@@ -235,6 +235,7 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
         ("mypy", "0.930"),
         ("pytest", "6.2.5"),
         ("toml", None),
+        ("Flask", "~=3.1.3"),
     ]
 
     # case: pyproject.toml (poetry)
