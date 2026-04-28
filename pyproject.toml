@@ -30,21 +30,21 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10"
 termcolor = "^3.3.0"
-requests = "^2.32.5"
+requests = "^2.33.1"
 requirements-parser = "^0.13.0"
 toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
-pre-commit = "^4.5.1"
+pre-commit = "^4.6.0"
 black = "^26.3.1"
-isort = "^7.0.0"
+isort = "^8.0.1"
 pytest = "^9.0.3"
-pytest-cov = "^7.0.0"
+pytest-cov = "^7.1.0"
 flake8 = "^7.3.0"
-mypy = "^1.19.1"
-pylint = "^4.0.4"
-types-toml = "^0.10.8.20240310"
-types-requests = "^2.32.4.20260107"
+mypy = "^1.20.2"
+pylint = "^4.0.5"
+types-toml = "^0.10.8.20260408"
+types-requests = "^2.33.0.20260408"
 
 [tool.isort]
 src_paths = ["lancini", "test"]
