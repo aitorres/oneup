@@ -30,7 +30,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10"
 termcolor = "^3.3.0"
-requests = "^2.33.1"
+requests = "^2.34.0"
 requirements-parser = "^0.13.0"
 toml = "^0.10.2"
 
