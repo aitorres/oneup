@@ -6,6 +6,7 @@ on the PyPI repository.
 from typing import Final, Optional
 
 import requests
+
 from oneup.output import VERSION_MATCH_STR, VERSION_MISMATCH_STR, to_bold
 
 PYPI_API_PROJECT_URL: Final[str] = "https://pypi.org/pypi/{project_name}/json"
@@ -39,7 +40,12 @@ def is_version_match(
     if current_version is None:
         return None
 
-    return current_version.lstrip("^~=") == latest_version
+    for prefix in ("~=", "^", "~", "="):
+        if current_version.startswith(prefix):
+            current_version = current_version[len(prefix) :]
+            break
+
+    return current_version == latest_version
 
 
 def print_project_latest_version_and_url(
