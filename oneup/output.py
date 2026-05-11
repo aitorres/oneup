@@ -28,10 +28,11 @@ def style_requirements_specs(specs: list[tuple[str, ...]]) -> Optional[str]:
     if not specs:
         return None
 
-    if len(specs) == 1 and specs[0][0] == "==":
-        return specs[0][1]
+    if len(specs) == 1:
+        op, version = specs[0]
+        if op == "==":
+            return version
+        if op == "~=":
+            return f"~={version}"
 
-    if len(specs) == 1 and specs[0][0] == "~=":
-        return f"~={specs[0][1]}"
-
-    return ", ".join([f"{op} {version}" for op, version in specs])
+    return ", ".join(f"{op} {version}" for op, version in specs)

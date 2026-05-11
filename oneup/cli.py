@@ -19,12 +19,10 @@ from oneup.version_checks import print_project_latest_version_and_url
 REQUIREMENTS_TXT: Final[str] = "requirements.txt"
 REQUIREMENTS_DEV_TXT: Final[str] = "requirements_dex.txt"
 PYPROJECT_TOML: Final[str] = "pyproject.toml"
-SUPPORTED_REQUIREMENT_FILES: Final[list[str]] = [
-    REQUIREMENTS_TXT,
-    REQUIREMENTS_DEV_TXT,
-    PYPROJECT_TOML,
-]
-VERSION_SEPARATORS: Final[list[str]] = [
+SUPPORTED_REQUIREMENT_FILES: Final[frozenset[str]] = frozenset(
+    (REQUIREMENTS_TXT, REQUIREMENTS_DEV_TXT, PYPROJECT_TOML)
+)
+VERSION_SEPARATORS: Final[tuple[str, ...]] = (
     "==~",
     "===",
     ">=",
@@ -34,7 +32,10 @@ VERSION_SEPARATORS: Final[list[str]] = [
     "~=",
     "<",
     ">",
-]
+)
+_VERSION_SEPARATOR_RE: Final[re.Pattern[str]] = re.compile(
+    "|".join(re.escape(sep) for sep in VERSION_SEPARATORS)
+)
 
 
 def discover_all_requirement_files() -> list[Path]:
@@ -43,9 +44,11 @@ def discover_all_requirement_files() -> list[Path]:
     requirement files.
     """
 
-    current_path_files = [f for f in os.listdir() if os.path.isfile(f)]
-
-    return [Path(f) for f in current_path_files if f in SUPPORTED_REQUIREMENT_FILES]
+    return [
+        Path(f)
+        for f in os.listdir()
+        if f in SUPPORTED_REQUIREMENT_FILES and os.path.isfile(f)
+    ]
 
 
 def is_valid_idx(maybe_idx: str, min_value: int, max_value: int) -> bool:
@@ -137,21 +140,16 @@ def extract_poetry_dependencies(
 
     dependencies: list[tuple[str, Optional[str]]] = []
 
-    if "tool" in parsed_toml:
-        tool_specs: MutableMapping[str, Any] = parsed_toml["tool"]
+    poetry_specs: MutableMapping[str, Any] = parsed_toml.get("tool", {}).get(
+        "poetry", {}
+    )
 
-        if "poetry" in tool_specs:
-            poetry_specs: MutableMapping[str, Any] = tool_specs["poetry"]
+    for key in ("dependencies", "dev-dependencies"):
+        if key in poetry_specs:
+            dependencies.extend(poetry_specs[key].items())
 
-            for key in ("dependencies", "dev-dependencies"):
-                if key in poetry_specs:
-                    dependencies.extend(list(poetry_specs[key].items()))
-
-            if "group" in poetry_specs:
-                for _, group_dependencies in poetry_specs["group"].items():
-                    dependencies.extend(
-                        list(group_dependencies["dependencies"].items())
-                    )
+    for group_dependencies in poetry_specs.get("group", {}).values():
+        dependencies.extend(group_dependencies["dependencies"].items())
 
     return dependencies
 
@@ -166,21 +164,12 @@ def extract_uv_dependencies(
 
     dependencies: list[tuple[str, Optional[str]]] = []
 
-    if "project" in parsed_toml:
-        project_specs: MutableMapping[str, Any] = parsed_toml["project"]
+    project_dependencies = parsed_toml.get("project", {}).get("dependencies")
+    if project_dependencies:
+        dependencies.extend(extract_dependencies_from_str_list(project_dependencies))
 
-        if "dependencies" in project_specs:
-            dependencies.extend(
-                extract_dependencies_from_str_list(project_specs["dependencies"])
-            )
-
-    if "dependency-groups" in parsed_toml:
-        dependency_groups: MutableMapping[str, Any] = parsed_toml["dependency-groups"]
-
-        for group in dependency_groups:
-            dependencies.extend(
-                extract_dependencies_from_str_list(dependency_groups[group])
-            )
+    for group_dependencies in parsed_toml.get("dependency-groups", {}).values():
+        dependencies.extend(extract_dependencies_from_str_list(group_dependencies))
 
     return dependencies
 
@@ -197,15 +186,14 @@ def extract_dependencies_from_str_list(
     dependencies: list[tuple[str, Optional[str]]] = []
 
     for dependency in dependency_list:
-        for separator in VERSION_SEPARATORS:
-            if separator in dependency:
-                name, version = dependency.split(separator, 1)
-                # Clean up parenthesized version specifiers (PEP 508 style)
-                # e.g. "tweepy (>=4.16.0,<5.0.0)" -> ("tweepy", "4.16.0")
-                name = re.sub(r"[\s(]+$", "", name)
-                version = re.sub(r"[,)].+", "", version).strip()
-                dependencies.append((name, version))
-                break
+        match = _VERSION_SEPARATOR_RE.search(dependency)
+        if match is None:
+            continue
+        # Clean up parenthesized version specifiers (PEP 508 style)
+        # e.g. "tweepy (>=4.16.0,<5.0.0)" -> ("tweepy", "4.16.0")
+        name = re.sub(r"[\s(]+$", "", dependency[: match.start()])
+        version = re.sub(r"[,)].+", "", dependency[match.end() :]).strip()
+        dependencies.append((name, version))
 
     return dependencies
 
@@ -218,11 +206,10 @@ def flatten_dependencies(
     inside dictionaries, if any
     """
 
-    for idx, (name, version) in enumerate(dependencies):
-        if isinstance(version, dict):
-            dependencies[idx] = (name, version["version"])
-
-    return dependencies
+    return [
+        (name, version["version"] if isinstance(version, dict) else version)
+        for name, version in dependencies
+    ]
 
 
 def scan_dependency_list(dependencies: list[tuple[str, Optional[str]]]) -> None:
@@ -230,8 +217,7 @@ def scan_dependency_list(dependencies: list[tuple[str, Optional[str]]]) -> None:
     Scans a list of dependencies and queries for their latest version
     """
 
-    for dependency in dependencies:
-        name, version = dependency
+    for name, version in dependencies:
         print_project_latest_version_and_url(name, version)
 
 
@@ -258,10 +244,11 @@ def scan_file(requirements_file_path: Path, n_threads: int) -> None:
         print(f"{ERROR_STR}: Unsupported requirements file!")
         sys.exit(1)
 
-    with ThreadPoolExecutor(max_workers=n_threads) as executor:
+    workers = max(1, min(n_threads, len(dependencies)))
+    with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = [
-            executor.submit(scan_dependency_list, dependencies[i::n_threads])
-            for i in range(n_threads)
+            executor.submit(scan_dependency_list, dependencies[i::workers])
+            for i in range(workers)
         ]
 
         # Wait for all threads to finish
