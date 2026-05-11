@@ -2,4 +2,4 @@
 `oneup` is a CLI tool to check for dependency updates for Python.
 """
 
-__version__ = "0.9.1"
+__version__ = "0.10.0"
