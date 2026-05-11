@@ -118,8 +118,11 @@ def get_dependencies_from_pyproject_file(
 
     dependencies: list[tuple[str, Optional[str]]] = []
 
-    dependencies.extend(extract_poetry_dependencies(parsed_toml))
+    # Extract PEP 621 / uv main project dependencies first so that the
+    # main dependencies are reported before any dev/group dependencies
+    # that may be defined under `tool.poetry`.
     dependencies.extend(extract_uv_dependencies(parsed_toml))
+    dependencies.extend(extract_poetry_dependencies(parsed_toml))
 
     return flatten_dependencies(dependencies)
 

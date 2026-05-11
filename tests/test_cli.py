@@ -296,6 +296,48 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
         cli.scan_file(Path("unknown_file.txt"), 1)
 
 
+def test_scan_file_main_dependencies_before_dev(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    Tests that when processing a pyproject.toml file that mixes PEP 621
+    main dependencies with a poetry dev dependency group, the main
+    dependencies are reported before the dev dependencies.
+    """
+
+    printed_dependencies: list[tuple[str, Optional[str]]] = []
+
+    def mock_print_project_latest_version_and_url(
+        dependency: str, version: Optional[str]
+    ) -> None:
+        printed_dependencies.append((dependency, version))
+
+    monkeypatch.setattr(
+        cli,
+        "print_project_latest_version_and_url",
+        mock_print_project_latest_version_and_url,
+    )
+
+    test_file_path = SAMPLE_FILES_PATH / "poetry-order" / "pyproject.toml"
+    cli.scan_file(test_file_path, 1)
+
+    main_dependency_names = {"tweepy", "requests", "atproto"}
+    dev_dependency_names = {"pytest", "pytest-cov"}
+
+    reported_names = [name for name, _ in printed_dependencies]
+
+    assert set(reported_names) == main_dependency_names | dev_dependency_names
+
+    last_main_index = max(
+        idx for idx, name in enumerate(reported_names) if name in main_dependency_names
+    )
+    first_dev_index = min(
+        idx for idx, name in enumerate(reported_names) if name in dev_dependency_names
+    )
+
+    assert last_main_index < first_dev_index
+
+
 def test_main_with_file_arg(monkeypatch: pytest.MonkeyPatch) -> None:
     """
     Tests the main function when a file is provided via command line argument
