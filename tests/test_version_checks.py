@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import pytest
+
 from oneup import version_checks
 
 

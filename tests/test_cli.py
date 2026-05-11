@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Callable, Final, Optional
 
 import pytest
+
 from oneup import __version__, cli
 
 SAMPLE_FILES_PATH: Final[Path] = Path("tests/sample_files")
@@ -48,6 +49,11 @@ def test_discover_all_requirement_files(monkeypatch: pytest.MonkeyPatch) -> None
         Path("pyproject.toml"),
         Path("requirements.txt"),
     ]
+
+    monkeypatch.setattr(
+        "os.listdir", lambda: ["requirements_dev.txt", "another_test.txt"]
+    )
+    assert cli.discover_all_requirement_files() == [Path("requirements_dev.txt")]
 
     monkeypatch.setattr(
         "os.listdir",

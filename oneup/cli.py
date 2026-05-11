@@ -12,12 +12,13 @@ from typing import Any, Final, MutableMapping, Optional
 
 import requirements
 import toml
+
 from oneup import __version__
 from oneup.output import ERROR_STR, ONEUP_STR, style_requirements_specs, to_bold
 from oneup.version_checks import print_project_latest_version_and_url
 
 REQUIREMENTS_TXT: Final[str] = "requirements.txt"
-REQUIREMENTS_DEV_TXT: Final[str] = "requirements_dex.txt"
+REQUIREMENTS_DEV_TXT: Final[str] = "requirements_dev.txt"
 PYPROJECT_TOML: Final[str] = "pyproject.toml"
 SUPPORTED_REQUIREMENT_FILES: Final[frozenset[str]] = frozenset(
     (REQUIREMENTS_TXT, REQUIREMENTS_DEV_TXT, PYPROJECT_TOML)
