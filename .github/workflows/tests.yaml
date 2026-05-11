@@ -17,7 +17,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
       - name: Install Poetry
-        uses: snok/install-poetry@v1.3.0
+        uses: snok/install-poetry@v1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
