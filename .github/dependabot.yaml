@@ -5,12 +5,12 @@ updates:
     schedule:
       interval: "daily"
     exclude-paths:
-      - "tests/sample-files/*"
-      - "tests/sample-files/**/*"
+      - "tests/sample_files/*"
+      - "tests/sample_files/**/*"
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
       interval: "daily"
     exclude-paths:
-      - "tests/sample-files/*"
-      - "tests/sample-files/**/*"
+      - "tests/sample_files/*"
+      - "tests/sample_files/**/*"
