@@ -302,6 +302,31 @@ def test_scan_file(monkeypatch: pytest.MonkeyPatch) -> None:
         cli.scan_file(Path("unknown_file.txt"), 1)
 
 
+def test_scan_file_malformed_toml(tmp_path: Path) -> None:
+    """
+    Tests that scan_file exits gracefully when given a malformed pyproject.toml
+    """
+
+    malformed = tmp_path / "pyproject.toml"
+    malformed.write_text("[tool.poetry\ninvalid syntax here", encoding="utf8")
+
+    with pytest.raises(SystemExit):
+        cli.scan_file(malformed, 1)
+
+
+def test_scan_file_invalid_encoding(tmp_path: Path) -> None:
+    """
+    Tests that scan_file exits gracefully when a requirements.txt
+    cannot be decoded as UTF-8
+    """
+
+    malformed = tmp_path / "requirements.txt"
+    malformed.write_bytes(b"\xff\xfe\x80\x81 not valid utf-8")
+
+    with pytest.raises(SystemExit):
+        cli.scan_file(malformed, 1)
+
+
 def test_scan_file_main_dependencies_before_dev(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

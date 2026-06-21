@@ -230,16 +230,26 @@ def scan_file(requirements_file_path: Path, n_threads: int) -> None:
 
     file_name = requirements_file_path.name
     if file_name in (REQUIREMENTS_TXT, REQUIREMENTS_DEV_TXT):
-        with open(requirements_file_path, "r", encoding="utf8") as requirements_file:
-            parsed_file = requirements.parse(requirements_file)
-            dependencies: list[tuple[str, Optional[str]]] = [
-                (req["name"], style_requirements_specs(req["specs"]))
-                for req in parsed_file
-            ]
+        try:
+            with open(
+                requirements_file_path, "r", encoding="utf8"
+            ) as requirements_file:
+                parsed_file = requirements.parse(requirements_file)
+                dependencies: list[tuple[str, Optional[str]]] = [
+                    (req["name"], style_requirements_specs(req["specs"]))
+                    for req in parsed_file
+                ]
+        except (UnicodeDecodeError, OSError) as e:
+            print(f"{ERROR_STR}: could not read {requirements_file_path}: {e}")
+            sys.exit(1)
 
     elif file_name == PYPROJECT_TOML:
-        parsed_toml = toml.load(requirements_file_path)
-        dependencies = get_dependencies_from_pyproject_file(parsed_toml)
+        try:
+            parsed_toml = toml.load(requirements_file_path)
+            dependencies = get_dependencies_from_pyproject_file(parsed_toml)
+        except toml.TomlDecodeError as e:
+            print(f"{ERROR_STR}: could not parse {requirements_file_path}: {e}")
+            sys.exit(1)
 
     else:
         print(f"{ERROR_STR}: Unsupported requirements file!")
